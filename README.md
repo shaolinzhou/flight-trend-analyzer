@@ -50,3 +50,57 @@ För att säkerställa projektets genomförbarhet har följande 4 datahämtnings
 
 `Datainläsning (Ingestion)` ➔ `Datatvätt (Cleaning)` ➔ `Analys & Visualisering (Analysis)` ➔ `Dataexport (Export)`
 
+---
+
+## 📊 6. Kom igång – enkel dataanalys (Quick Start)
+
+Huvudlogiken ligger i `src/flight_logic.py` och anropas från notebooken `flight_analyzer.ipynb`.
+
+```python
+from src.flight_logic import KaggleFlightDataLoader
+
+# 1. Läs in CSV från nuvarande arbetskatalog
+loader = KaggleFlightDataLoader()
+loader.load_data()
+
+# 2. Förhandsvisa de 10 första raderna
+print(loader.show_first_rows(10))
+```
+
+### Enkel dataöversikt (datamängdens egenskaper)
+
+| Egenskap | Värde |
+|---|---|
+| Antal rader | 300 153 |
+| Antal kolumner | 12 |
+| Flygbolag | 6 (SpiceJet, AirAsia, Vistara, GO_FIRST, Indigo, Air_India) |
+| Pris – medel / min / max | 20 890 / 1 105 / 123 071 |
+| Genomsnittlig flygtid (timmar) | 12,2 |
+| Klasser | Economy, Business |
+| Avgångstidslottar | 6 (Early_Morning … Late_Night) |
+
+### Exempel: snabb statistik med pandas
+
+```python
+import pandas as pd
+df = pd.read_csv("Clean_Dataset.csv")
+
+print(df.groupby("airline")["price"].agg(["mean", "min", "max"]))  # pris per flygbolag
+print(df.describe())                                               # grundstatistik
+```
+
+---
+
+## ✅ 7. Projektstatus (Status)
+
+| # | Steg | Status |
+|---|------|--------|
+| 1 | Läsa in `Clean_Dataset.csv` och testa utskrift av första raderna | ✅ Klar (2026-09-03) |
+| 2 | Datatvätt (hantera `Unnamed: 0`, tomma värden) | ⬜ |
+| 3 | Grundstatistik & kolumnöversikt | ⬜ |
+| 4 | Analysfunktioner (rutter, priser, avgångstider) | ⬜ |
+| 5 | Visualisering av resultat | ⬜ |
+| 6 | Export av analyserad data | ⬜ |
+
+Se `dev.log` för detaljerad utvecklingslogg och arkitekturvision.
+

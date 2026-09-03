@@ -1,0 +1,90 @@
+# 📝 dev.log – Flygprisanalys och avgångstidsoptimering
+
+> Uppdaterad: 2026-09-03
+> Språk: Svenska
+
+---
+
+## 🔄 1. Nuvarande arbetsstatus (milsten 1)
+
+Projektet befinner sig i **startfasen**. Målet just nu är att få en fungerande
+grundkod som läser in Kaggle-datasetet och ger en första förhandsvisning av data.
+
+### Gjort hittills
+- [x] Git-repot initierat och alla filer stagade.
+- [x] Skapat mappen `src/` för återanvändbara Python-moduler.
+- [x] Minimal modul `src/flight_logic.py` med klassen `KaggleFlightDataLoader`:
+  - `load_data()` – läser `Clean_Dataset.csv` från nuvarande arbetskatalog (300 153 rader).
+  - `show_first_rows(n=10)` – visar de första raderna i DataFrame.
+- [x] Huvudnotebook `flight_analyzer.ipynb` reducerad till **endast**:
+  1. Läsa in `Clean_Dataset.csv`
+  2. Visa de 10 första raderna (`df.head(10)`)
+
+### Aktuella filer i arbetskatalogen
+```
+Clean_Dataset.csv                 Rådata (Kaggle, ~300k rader)
+README.md                         Projektöversikt & pipelinebeskrivning
+flight_analyzer.ipynb             Huvudnotebook (inläsning + head(10))
+src/flight_logic.py               Minimal inläsningsklass
+dev.log                           Detta dokument
+```
+
+---
+
+## 🎯 2. Enkel utvecklingsplan
+
+| # | Steg | Status |
+|---|------|--------|
+| 1 | Läsa in `Clean_Dataset.csv` och testa utskrift av första raderna | ✅ Klar (2026-09-03) |
+| 2 | Datatvätt (hantera `Unnamed: 0`, tomma värden) | ⬜ |
+| 3 | Grundstatistik & kolumnöversikt | ⬜ |
+| 4 | Analysfunktioner (rutter, priser, avgångstider) | ⬜ |
+| 5 | Visualisering av resultat | ⬜ |
+| 6 | Export av analyserad data | ⬜ |
+
+### Steg 1 – klar (2026-09-03) ✅
+Idag genomfördes **steg 1**: inläsning av CSV-data med testutskrift.
+- `src/flight_logic.py`: `KaggleFlightDataLoader.load_data()` läser in 300 153 rader.
+- `flight_analyzer.ipynb`: läser CSV:n och visar `df.head(10)`.
+- Verifierat genom exekvering – fungerar korrekt.
+
+---
+
+## 🏗️ 3. Arkitekturvision (utifrån flygpris-exemplet)
+
+Målet är en **enkel, objektorienterad pipeline** där notebooken bara är en
+"körbar berättelse" och all logik ligger i `src/`. Idén följer samma mönster
+som referensnotebooken `flight_analyzer.ipynb`.
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  flight_analyzer.ipynb  (tunt lager – kör/scenarion)     │
+│  – läser CSV, anropar klasser, visar diagram/tabeller     │
+└──────────────────────────────┬───────────────────────────┘
+                               │  import / anrop
+┌──────────────────────────────▼───────────────────────────┐
+│  src/  (återanvändbar logik – OOP)                       │
+│                                                          │
+│  flight_logic.py                                         │
+│  ├── KaggleFlightDataLoader   (ärv från Analyzer)        │
+│  │     load_data() / show_first_rows() / export_csv()    │
+│  ├── FlightDataAnalyzer       (förälderklass)            │
+│  │     analyze_route_pricing()                           │
+│  │     optimize_flight_selection()                       │
+│  │     calculate_summary_stats()                         │
+│  └── (framtida) visualisering & konfiguration            │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Designprinciper
+- **Tunt notebook-lager**: Notebooken innehåller endast anrop och visning;
+  all återanvändbar kod ligger i `src/`.
+- **OOP-arv**: `KaggleFlightDataLoader` ärver analysmetoder från
+  `FlightDataAnalyzer`, så samma objekt både laddar, rensar och analyserar.
+- **Inkrementell utveckling**: Först inläsning → sedan tvätt → sedan analys
+  → sedan visualisering → sedan export. Varje steg verifieras i notebooken.
+
+### Tänkt slutgiltigt flöde (enligt README)
+```
+Datainläsning ➔ Datatvätt ➔ Analys & Visualisering ➔ Export
+```
