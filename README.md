@@ -2,105 +2,76 @@
 
 ## 📌 1. Project Overview (Projektöversikt)
 
-This project is an object-oriented Python application designed to analyze historical airline ticket data from Kaggle (`Clean_Dataset.csv` / `Data_Train.csv`). It performs automated data loading, cleaning, statistical aggregation, visualization, and persistent CSV export.
+Detta projekt är ett objektorienterat (OOP) Python-program som hämtar **realtids flygdata** från OpenSky Network API och utför dataanalys med fokus på:
+- Landfördelning av aktiva flyg
+- Hastighets- och höjdsanalys
+- Filtrering och export av data
 
-The primary goal is to demonstrate fundamental Python software engineering principles, robust error handling, data processing pipeline development, and documentation practices aligned with AI and data engineering industry standards.
+Målet är att visa grundläggande Python-programmeringsprinciper, felhantering, datapipeline och dokumentation i linje med AI- och dataingenjörsbranschen.
 
 ---
 
 ## 📌 2. Uppgiftsbeskrivning (Task Scope)
 
-Detta projekt syftar till att genomföra en inledande dataundersökning och förädling av flygbiljettsdata baserat på Kaggle-dataset (`Clean_Dataset.csv` / `Data_Train.csv`). Genom en objektorienterad (OOP) datapipeline analyseras flygpriser och avgångstider för att filtrera fram de mest prisvärda flygresorna.
+Detta projekt syftar till att hämta och analysera **live flygdata** från OpenSky Network API. Genom en objektorienterad datapipeline analyseras flygfördelning, hastighet och höjd för att identifiera mönster i realtid.
 
 ---
 
 ## 🛠️ 3. Pågående arbete (Aktuella uppgifter)
 
-### 1. Inledande dataundersökning (Data Exploration & Ingestion)
-- Genomgång och strukturanalys av rådata för flygbiljetter.
-- Felhantering vid inladdning samt datatvätt (t.ex. rensning av tomma värden och onödiga indexkolumner).
-
-### 2. Filtrering och optimering av flyginformation (Flight Selection & Filtering)
-- **Pris- och frekvensanalys för populära rutter**: Sammanställning av snittpriser och lägsta priser för de vanligaste flygrutterna.
-- **Filtrering av optimerade "guld-flyg" (Best-Value Flights)**: Tillämpning av dubbla kvantilfilter (lägsta 20 % av priset samt kortaste 20 % av flygtiden) för att identifiera flyg med högsta prisvärdhet.
-- **Tidsfördelningsanalys**: Visualisering av hur de optimerade flygresorna fördelar sig över olika avgångstider (`departure_time`).
-- **Datalagring (Data Export)**: Exportering av de filtrerade, optimala flygresorna till en separat rapportfil (`best_value_flights.csv`).
+### 1. Basklass för dataanalys (Base Class)
+- Skapande av `FlightDataAnalyzer` som basklass
+- Grundläggande funktioner för datahantering och statistik
 
 ---
 
-## 🌐 4. Datakällor och Utvärdering (Data Sources Evaluation)
+## 🚀 4. Arbetsflöde (Pipeline)
 
-För att säkerställa projektets genomförbarhet har följande 4 datahämtningsalternativ utvärderats:
-
-1. **Amadeus Self-Service API**
-   - *Beskrivning*: Officiell API-plattform från den globala flyggiganten Amadeus.
-   - *Funktioner*: Realtidssökning av flyg och prisprognoser (ca 2 000 fria anrop/månad).
-2. **RapidAPI / Skyscanner API**
-   - *Beskrivning*: Tredjeparts-API för snabb inläsning av lägsta priser på specifik rutt.
-3. **Kaggle Statiskt Dataset (Vald huvudkälla / Chosen Primary Source ⭐⭐⭐⭐⭐)**
-   - *Beskrivning*: Historisk databas med över 300 000 flygposteringar (`Clean_Dataset.csv`).
-   - *Länk*: [Kaggle Flight Price Prediction Dataset](https://www.kaggle.com/datasets/shubhambathwal/flight-price-prediction)
-   - *Motivering*: **Noll API-risk (ingen nätverksbegränsning/rate-limiting)**, perfekt anpassat för objektorienterad datatvätt, funktionsextrahering och stabil visualisering.
-4. **Mock API / Lokal Genererad Data (Reservalternativ)**
-   - *Beskrivning*: Lokal simulering med Python `faker`/`random` för reservtester.
+`Datahämtning (API)` ➔ `Validering & Rengöring` ➔ `Analys & Visualisering` ➔ `Dataexport (CSV)`
 
 ---
 
-## 🚀 5. Arbetsflöde (Pipeline)
-
-`Datainläsning (Ingestion)` ➔ `Datatvätt (Cleaning)` ➔ `Analys & Visualisering (Analysis)` ➔ `Dataexport (Export)`
-
----
-
-## 📊 6. Kom igång – enkel dataanalys (Quick Start)
+## 📊 5. Kom igång – Basklass (Quick Start)
 
 Huvudlogiken ligger i `src/flight_logic.py` och anropas från notebooken `flight_analyzer.ipynb`.
 
 ```python
-from src.flight_logic import KaggleFlightDataLoader
+from src.flight_logic import FlightDataAnalyzer
 
-# 1. Läs in CSV från nuvarande arbetskatalog
-loader = KaggleFlightDataLoader()
-loader.load_data()
+# Skapa basklass med testdata
+analyzer = FlightDataAnalyzer()
 
-# 2. Förhandsvisa de 10 första raderna
-print(loader.show_first_rows(10))
+# Hämta grundläggande statistik
+stats = analyzer.calculate_summary_stats()
+print(stats)
 ```
 
-### Enkel dataöversikt (datamängdens egenskaper)
-
-| Egenskap | Värde |
-|---|---|
-| Antal rader | 300 153 |
-| Antal kolumner | 12 |
-| Flygbolag | 6 (SpiceJet, AirAsia, Vistara, GO_FIRST, Indigo, Air_India) |
-| Pris – medel / min / max | 20 890 / 1 105 / 123 071 |
-| Genomsnittlig flygtid (timmar) | 12,2 |
-| Klasser | Economy, Business |
-| Avgångstidslottar | 6 (Early_Morning … Late_Night) |
-
-### Exempel: snabb statistik med pandas
+### Klassstruktur
 
 ```python
-import pandas as pd
-df = pd.read_csv("Clean_Dataset.csv")
+class FlightDataAnalyzer:
+    """Basklass för flyghantering och analys."""
 
-print(df.groupby("airline")["price"].agg(["mean", "min", "max"]))  # pris per flygbolag
-print(df.describe())                                               # grundstatistik
+    def __init__(self, data=None):
+        self.df = data if data is not None else pd.DataFrame()
+
+    def calculate_summary_stats(self):
+        # Returnerar total_flights, avg_velocity, min/max, etc.
 ```
 
 ---
 
-## ✅ 7. Projektstatus (Status)
+## ✅ 6. Projektstatus (Status)
 
 | # | Steg | Status |
 |---|------|--------|
-| 1 | Läsa in `Clean_Dataset.csv` och testa utskrift av första raderna | ✅ Klar (2026-09-03) |
-| 2 | Datatvätt (hantera `Unnamed: 0`, tomma värden) | ⬜ |
-| 3 | Grundstatistik & kolumnöversikt | ⬜ |
-| 4 | Analysfunktioner (rutter, priser, avgångstider) | ⬜ |
-| 5 | Visualisering av resultat | ⬜ |
-| 6 | Export av analyserad data | ⬜ |
+| 1 | Skapa basklass FlightDataAnalyzer | ✅ Klar |
+| 2 | Lägg till API-barnklass | ⬜ |
+| 3 | Datavalidering och rengöring | ⬜ |
+| 4 | Landfördelningsanalys | ⬜ |
+| 5 | Hastighet och höjd analys | ⬜ |
+| 6 | For-loop sammanfattning | ⬜ |
 
-Se `dev.log` för detaljerad utvecklingslogg och arkitekturvision.
+---
 
+*Skapad som en del av kursuppgiften Utveckling med Python, grund.*
