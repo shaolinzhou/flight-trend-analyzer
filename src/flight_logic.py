@@ -10,7 +10,7 @@ class FlightDataAnalyzer:
         self.df = data.copy() if data is not None else pd.DataFrame()
 
     def calculate_summary_stats(self) -> Dict[str, Any]:
-        """Beräkna grundläggande sammanfattande statistik för datamängden."""
+        """Beräkna grundläggande sammanfattande statistik."""
         if self.df.empty:
             return {"total_flights": 0, "status": "No data available"}
         return {
@@ -20,11 +20,11 @@ class FlightDataAnalyzer:
         }
 
 class LiveFlightAPI(FlightDataAnalyzer):
-    """Barnklass med datavalidering, rengöring och landsfiltrering (Mål 3 & 6)."""
+    """Barnklass med landfördelning och flygbolagsanalys (Mål 3 & 6)."""
 
     API_URL = "https://opensky-network.org/api/states/all"
 
-    def fetch_live_flights(self, limit: int = 100) -> bool:
+    def fetch_live_flights(self, limit: int = 200) -> bool:
         """Hämta och rengör realtidsflygdata."""
         try:
             response = requests.get(self.API_URL, timeout=12)
@@ -35,10 +35,9 @@ class LiveFlightAPI(FlightDataAnalyzer):
 
             records: List[Dict[str, Any]] = []
             for flight in flights[:limit]:
-                callsign = flight[1].strip() if flight[1] else "N/A"
                 records.append({
                     "icao24": flight[0],
-                    "callsign": callsign,
+                    "callsign": flight[1].strip() if flight[1] else "N/A",
                     "country": flight[2],
                     "longitude": flight[5],
                     "latitude": flight[6],
@@ -47,9 +46,8 @@ class LiveFlightAPI(FlightDataAnalyzer):
                     "heading": flight[10]
                 })
             raw_df = pd.DataFrame(records)
-            # Rengöring: ta bort saknade nödvändiga fält
             self.df = raw_df.dropna(subset=["icao24", "country"]).copy()
-            print(f"[SUCCESS] Validated and cleaned {len(self.df)} records.")
+            print(f"[SUCCESS] Loaded and cleaned {len(self.df)} records.")
             return True
         except Exception as e:
             print(f"[ERROR] API fetch error: {e}")
@@ -61,17 +59,29 @@ class LiveFlightAPI(FlightDataAnalyzer):
     def get_flights_by_country(self, country: str = "United States") -> pd.DataFrame:
         """Filtrera flyg baserat på ursprungsland."""
         if self.df.empty:
-            print("[WARNING] Ingen flygdata tillganglig for filtrering.")
             return pd.DataFrame()
-        filtered = self.df[self.df["country"] == country]
-        print(f"[INFO] {country}: {len(filtered)} aktiva flyg hittades.")
-        return filtered
+        return self.df[self.df["country"] == country]
 
-    def show_data_info(self) -> None:
-        """Stage 04 testmetod: Visa struktur och validering av hämtad data."""
+    def get_top_airlines(self, top_n: int = 10) -> pd.DataFrame:
+        """Hämta flygbolag med flest aktiva flyg baserat på callsign."""
+        if self.df.empty or "callsign" not in self.df.columns:
+            return pd.DataFrame()
+        valid = self.df[(self.df["callsign"] != "N/A") & (self.df["callsign"].str.strip() != "")]
+        stats = valid.groupby("callsign").agg(
+            flight_count=("icao24", "count"),
+            avg_altitude=("altitude", "mean"),
+            avg_velocity=("velocity", "mean")
+        ).reset_index()
+        stats["avg_altitude"] = stats["avg_altitude"].round(2)
+        stats["avg_velocity"] = stats["avg_velocity"].round(2)
+        return stats.sort_values(by="flight_count", ascending=False).head(top_n)
+
+    def show_country_stats(self) -> None:
+        """Stage 05 testmetod: Visa fördelning per land."""
         if self.df.empty:
             self.fetch_live_flights(limit=100)
-        print("[TEST] Stage 04: Data validation & info check:")
-        print(f"  Shape: {self.df.shape}")
-        print(f"  Missing altitude: {self.df['altitude'].isna().sum() if 'altitude' in self.df else 0}")
-        print(f"  Missing velocity: {self.df['velocity'].isna().sum() if 'velocity' in self.df else 0}")
+        print("[TEST] Stage 05: Top 5 countries distribution:")
+        if not self.df.empty and "country" in self.df:
+            top5 = self.df["country"].value_counts().head(5)
+            for c, cnt in top5.items():
+                print(f"  {c}: {cnt} flyg")

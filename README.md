@@ -1,43 +1,37 @@
 # Flight Trend & Optimization Analyzer
-*Stage 04: Datavalidering och Rengöring*
+*Stage 05: Landfördelningsanalys och Filtrering*
 
 ---
 
 ## 📌 1. Projektöversikt
-Realtidstelemetri från tusentals flygplan innehåller ofta brus, saknade koordinater och ofullständiga anropssignaler. I Stage 04 fokuserar vi på validering och rengöring av inkommande data innan analysen startar.
+Med validerad data i systemet påbörjas analysen av luftrumsfördelningen. Vilka nationer har flest plan i luften vid mättillfället?
 
 ---
 
-## 🧹 2. Rengöringsmetodik (Mål 6: Programutveckling)
-1. **Saknade fält**: Rader där `icao24` eller `country` saknas filtreras bort direkt med `.dropna()`.
-2. **Anropssignaler (Callsigns)**: Tomma strängar rensas från mellanslag och ersätts med `'N/A'`.
-3. **Numerisk integritet**: Säkerställer att hastighet och höjd hanteras korrekt som flyttal utan att orsaka krascher vid framtida beräkningar.
+## 📈 2. Analysfokus: Global flygaktivitet per land (Mål 2, 6)
+- **Frekvensberäkning**: Använder pandas `.value_counts()` på kolumnen `country` för att identifiera de mest trafikerade länderna.
+- **Flygbolagsanalys**: Introducerar metoden `get_top_airlines(top_n=10)` som grupperar giltiga anropssignaler (`callsign`) för att kartlägga dominerande aktörer.
+- **Insikter**: Ger en överblick över globala trafikmönster, där länder som USA, Frankrike, Kina och Tyskland ofta toppar listan beroende på tid på dygnet.
 
 ---
 
-## 🔍 3. Nya funktioner i Stage 04
-- `get_flights_by_country(country)`: Filtrerar ut aktiva flygningar för en specifik nation.
-- `show_data_info()`: Sammanfattar dataramens dimensioner (`shape`) och räknar saknade värden.
+## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 05)
+- **Fokus**: Aggregering av landfördelning och flygbolagstopplista.
+- **Git Commit**: `feat: analys av landfördelning och filtrering`
+- **Testmetod**: `live_api.show_country_stats()`
 
 ---
 
-## 🛠️ 4. Pågående arbete (Aktuella uppgifter för Stage 04)
-- **Fokus**: Datakvalitetssäkring och landsfiltrering.
-- **Git Commit**: `feat: add data validation and cleaning`
-- **Testmetod**: `live_api.show_data_info()`
-
----
-
-## 📊 5. Kom igång
+## 📊 4. Kom igång
 ```python
 from src.flight_logic import LiveFlightAPI
 
 live_api = LiveFlightAPI()
-live_api.fetch_live_flights(limit=100)
-live_api.show_data_info()
+live_api.fetch_live_flights(limit=200)
 
-us_flights = live_api.get_flights_by_country("United States")
-print(f"Hittade {len(us_flights)} flyg i USA.")
+top_countries = live_api.df["country"].value_counts().head(5)
+print("Topp 5 länder:")
+print(top_countries)
 ```
 
 ---
