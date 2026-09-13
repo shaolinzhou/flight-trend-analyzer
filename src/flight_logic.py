@@ -125,16 +125,10 @@ class LiveFlightAPI(FlightDataAnalyzer):
             print(f"[ERROR] Kunde inte skriva till fil '{output_filepath}': {e}")
             return False
 
-    def show_callsign_stats(self) -> None:
-        """Stage 08 testmetod: Visa callsign-räkning med for-loop."""
+    def show_data_transition(self) -> None:
+        """Stage 09 testmetod: Förberedelse och visualisering."""
         if self.df.empty:
             self.fetch_live_flights(limit=100)
-        print("[TEST] Stage 08: Airline flight counts using explicit for-loop:")
-        if "callsign" in self.df:
-            counts: Dict[str, int] = {}
-            for airline, group in self.df.groupby("callsign"):
-                if airline and airline != "N/A":
-                    counts[airline] = len(group)
-            sorted_top = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:5]
-            for air, cnt in sorted_top:
-                print(f"  [Callsign] {air}: {cnt} aktiva flyg")
+        print("[TEST] Stage 09: Visualization pipeline ready.")
+        print(f"  Data rader redo for Matplotlib: {len(self.df)}")
+        print(f"  Unika lander redo for stapeldiagram: {self.df['country'].nunique() if 'country' in self.df else 0}")

@@ -1,41 +1,35 @@
 # Flight Trend & Optimization Analyzer
-*Stage 08: Flygbolagsräkning med For-Loop och Dictionaries*
+*Stage 09: Datavisualisering med Matplotlib*
 
 ---
 
 ## 📌 1. Projektöversikt
-I detta stadium demonstrerar vi algoritmisk databearbetning i Python genom att räkna och sortera flygningar per anropssignal (callsign/flygbolag) med hjälp av en `dict` och en iterativ loop.
+Visuell analys är centralt för att upptäcka trender och anomalier. I Stage 09 integreras `matplotlib.pyplot` för att generera informativa diagram direkt i notebooken.
 
 ---
 
-## 📊 2. Algoritmisk logik: Dictionaries & Sortering (Mål 2, 6)
-- **Ackumuleringsmönster**:
-  1. Gruppera DataFrame per `callsign`.
-  2. Iterera genom grupperna med en `for`-loop.
-  3. Bygg en uppslagsbok (`dict`) som mappar flygbolagskod till antal aktiva flyg.
-  4. Sortera ordlistan fallande med `sorted()` och lambda-uttryck:
-     ```python
-     sorted_airlines = dict(sorted(airline_counts.items(), key=lambda x: x[1], reverse=True))
-     ```
-- Detta belyser hur standardstrukturer i Python samverkar med externa analysbibliotek.
+## 📉 2. Visualiseringsstrategi (Mål 7: Externa Bibliotek)
+Vi konstruerar tre huvudsakliga diagramtyper:
+1. **Stapeldiagram (Bar Chart) – Landfördelning**:
+   - Visualiserar de 10 länder med flest flygningar.
+   - Visar omedelbart den geografiska tyngdpunkten i flygtrafiken.
+2. **Stapeldiagram – Medelhastighet per land**:
+   - Jämför snitthastigheter och belyser skillnader mellan regional och interkontinental trafik.
+3. **Histogram – Hastighetsfördelning**:
+   - Analyserar hastighetsspridningen för specifika länder (t.ex. USA).
+   - Visar tydligt bimodala eller normalfördelade kurvor (flyg på inflygning vs marschflyg).
 
 ---
 
-## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 08)
-- **Fokus**: For-loop baserad uppräkning och sortering av flygbolagstrafik.
-- **Git Commit**: `feat: räkna flyg per callsign med for-loop`
-- **Testmetod**: `live_api.show_callsign_stats()`
+## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 09)
+- **Fokus**: Skapa tydliga grafer med axelrubriker, titlar och rutnät.
+- **Git Commit**: `feat: add data visualization`
+- **Testmetod**: `live_api.show_data_transition()`
 
 ---
 
 ## 📊 4. Kom igång
-```python
-from src.flight_logic import LiveFlightAPI
-
-live_api = LiveFlightAPI()
-live_api.fetch_live_flights(limit=200)
-live_api.show_callsign_stats()
-```
+Öppna `flight_analyzer.ipynb` och kör visualiseringscellerna för att generera diagrammen.
 
 ---
 *Kurs: Utveckling med Python, grund (40 YH-poäng) – Examinationsuppgift*
