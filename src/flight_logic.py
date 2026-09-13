@@ -125,14 +125,16 @@ class LiveFlightAPI(FlightDataAnalyzer):
             print(f"[ERROR] Kunde inte skriva till fil '{output_filepath}': {e}")
             return False
 
-    def show_for_loop_demo(self) -> None:
-        """Stage 07 testmetod: Visa för-loop summering per land."""
+    def show_callsign_stats(self) -> None:
+        """Stage 08 testmetod: Visa callsign-räkning med for-loop."""
         if self.df.empty:
             self.fetch_live_flights(limit=100)
-        print("[TEST] Stage 07: For-loop demonstration:")
-        if "country" in self.df:
-            top_countries = self.df["country"].value_counts().head(3)
-            for country, count in top_countries.items():
-                subset = self.df[self.df["country"] == country]
-                avg_v = subset["velocity"].mean() if not subset["velocity"].isna().all() else 0
-                print(f"  [Loop] Land: {country} | Flyg: {count} | Snittfart: {avg_v:.1f} m/s")
+        print("[TEST] Stage 08: Airline flight counts using explicit for-loop:")
+        if "callsign" in self.df:
+            counts: Dict[str, int] = {}
+            for airline, group in self.df.groupby("callsign"):
+                if airline and airline != "N/A":
+                    counts[airline] = len(group)
+            sorted_top = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:5]
+            for air, cnt in sorted_top:
+                print(f"  [Callsign] {air}: {cnt} aktiva flyg")

@@ -1,29 +1,30 @@
 # Flight Trend & Optimization Analyzer
-*Stage 07: Explicit For-Loop Summering per Land*
+*Stage 08: Flygbolagsräkning med For-Loop och Dictionaries*
 
 ---
 
 ## 📌 1. Projektöversikt
-Kursens mål 2 och 6 kräver förståelse för grundläggande styrsatser och loopar i Python. I Stage 07 kompletterar vi pandas vektoriserade operationer med explicita `for`-loopar för att skapa formaterade terminalrapporter.
+I detta stadium demonstrerar vi algoritmisk databearbetning i Python genom att räkna och sortera flygningar per anropssignal (callsign/flygbolag) med hjälp av en `dict` och en iterativ loop.
 
 ---
 
-## 🔄 2. Programmeringsparadigm: Vektorisering vs Explicita Loopar (Mål 2)
-- **Varför både och?** Medan pandas är överlägset för snabb databehandling i minnet, ger explicita loopar full kontroll över detaljerad strängformatering, anpassade utskrifter och logik för varje enskild entitet.
-- **Implementation**:
-  ```python
-  for country, count in country_counts.items():
-      subset = live_api.df[live_api.df["country"] == country]
-      avg_v = subset["velocity"].mean()
-      print(f"Land: {country} | Antal: {count} | Snittfart: {avg_v:.1f} m/s")
-  ```
+## 📊 2. Algoritmisk logik: Dictionaries & Sortering (Mål 2, 6)
+- **Ackumuleringsmönster**:
+  1. Gruppera DataFrame per `callsign`.
+  2. Iterera genom grupperna med en `for`-loop.
+  3. Bygg en uppslagsbok (`dict`) som mappar flygbolagskod till antal aktiva flyg.
+  4. Sortera ordlistan fallande med `sorted()` och lambda-uttryck:
+     ```python
+     sorted_airlines = dict(sorted(airline_counts.items(), key=lambda x: x[1], reverse=True))
+     ```
+- Detta belyser hur standardstrukturer i Python samverkar med externa analysbibliotek.
 
 ---
 
-## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 07)
-- **Fokus**: Konstruktion av loop-baserad summeringsrapport för toppländer.
-- **Git Commit**: `feat: for-loop sammanfattning per land`
-- **Testmetod**: `live_api.show_for_loop_demo()`
+## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 08)
+- **Fokus**: For-loop baserad uppräkning och sortering av flygbolagstrafik.
+- **Git Commit**: `feat: räkna flyg per callsign med for-loop`
+- **Testmetod**: `live_api.show_callsign_stats()`
 
 ---
 
@@ -32,8 +33,8 @@ Kursens mål 2 och 6 kräver förståelse för grundläggande styrsatser och loo
 from src.flight_logic import LiveFlightAPI
 
 live_api = LiveFlightAPI()
-live_api.fetch_live_flights(limit=150)
-live_api.show_for_loop_demo()
+live_api.fetch_live_flights(limit=200)
+live_api.show_callsign_stats()
 ```
 
 ---
