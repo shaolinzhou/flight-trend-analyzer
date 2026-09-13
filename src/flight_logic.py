@@ -20,7 +20,7 @@ class FlightDataAnalyzer:
         }
 
 class LiveFlightAPI(FlightDataAnalyzer):
-    """Barnklass med landfördelning och flygbolagsanalys (Mål 3 & 6)."""
+    """Barnklass med hastighets- och höjdsanalys samt exportfunktion (Mål 3 & 6)."""
 
     API_URL = "https://opensky-network.org/api/states/all"
 
@@ -47,7 +47,6 @@ class LiveFlightAPI(FlightDataAnalyzer):
                 })
             raw_df = pd.DataFrame(records)
             self.df = raw_df.dropna(subset=["icao24", "country"]).copy()
-            print(f"[SUCCESS] Loaded and cleaned {len(self.df)} records.")
             return True
         except Exception as e:
             print(f"[ERROR] API fetch error: {e}")
@@ -57,14 +56,14 @@ class LiveFlightAPI(FlightDataAnalyzer):
             return False
 
     def get_flights_by_country(self, country: str = "United States") -> pd.DataFrame:
-        """Filtrera flyg baserat på ursprungsland."""
+        """Filtrera flyg baserat på land."""
         if self.df.empty:
             return pd.DataFrame()
         return self.df[self.df["country"] == country]
 
     def get_top_airlines(self, top_n: int = 10) -> pd.DataFrame:
-        """Hämta flygbolag med flest aktiva flyg baserat på callsign."""
-        if self.df.empty or "callsign" not in self.df.columns:
+        """Hämta topp flygbolag baserat på callsign."""
+        if self.df.empty:
             return pd.DataFrame()
         valid = self.df[(self.df["callsign"] != "N/A") & (self.df["callsign"].str.strip() != "")]
         stats = valid.groupby("callsign").agg(
@@ -72,16 +71,27 @@ class LiveFlightAPI(FlightDataAnalyzer):
             avg_altitude=("altitude", "mean"),
             avg_velocity=("velocity", "mean")
         ).reset_index()
-        stats["avg_altitude"] = stats["avg_altitude"].round(2)
-        stats["avg_velocity"] = stats["avg_velocity"].round(2)
         return stats.sort_values(by="flight_count", ascending=False).head(top_n)
 
-    def show_country_stats(self) -> None:
-        """Stage 05 testmetod: Visa fördelning per land."""
+    def export_cleaned_data(self, output_filepath: str = "live_flights_data.csv") -> bool:
+        """Exportera rengjord data till CSV-fil (Mål 4 & 7)."""
+        if self.df.empty:
+            print("[WARNING] Ingen data att exportera.")
+            return False
+        try:
+            self.df.to_csv(output_filepath, index=False, encoding="utf-8")
+            print(f"[SUCCESS] Exporterade {len(self.df)} rader till '{output_filepath}'")
+            return True
+        except IOError as e:
+            print(f"[ERROR] Kunde inte spara CSV-fil: {e}")
+            return False
+
+    def show_velocity_stats(self) -> None:
+        """Stage 06 testmetod: Visa hastighets- och höjdstatistik."""
         if self.df.empty:
             self.fetch_live_flights(limit=100)
-        print("[TEST] Stage 05: Top 5 countries distribution:")
-        if not self.df.empty and "country" in self.df:
-            top5 = self.df["country"].value_counts().head(5)
-            for c, cnt in top5.items():
-                print(f"  {c}: {cnt} flyg")
+        print("[TEST] Stage 06: Velocity & Altitude stats:")
+        if not self.df.empty and "velocity" in self.df:
+            print(f"  Medelhastighet: {self.df['velocity'].mean():.2f} m/s")
+            print(f"  Maxhastighet:   {self.df['velocity'].max():.2f} m/s")
+            print(f"  Medelhojd:      {self.df['altitude'].mean():.2f} m")

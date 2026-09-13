@@ -1,24 +1,32 @@
 # Flight Trend & Optimization Analyzer
-*Stage 05: Landfördelningsanalys och Filtrering*
+*Stage 06: Hastighets- och Höjdsanalys*
 
 ---
 
 ## 📌 1. Projektöversikt
-Med validerad data i systemet påbörjas analysen av luftrumsfördelningen. Vilka nationer har flest plan i luften vid mättillfället?
+I detta stadium fördjupar vi analysen till telemetriska fysikvärden: marschhastighet och flygnivåer (höjd). Detta ger en djupare förståelse för hur trafiken fördelar sig i höjdled och fart.
 
 ---
 
-## 📈 2. Analysfokus: Global flygaktivitet per land (Mål 2, 6)
-- **Frekvensberäkning**: Använder pandas `.value_counts()` på kolumnen `country` för att identifiera de mest trafikerade länderna.
-- **Flygbolagsanalys**: Introducerar metoden `get_top_airlines(top_n=10)` som grupperar giltiga anropssignaler (`callsign`) för att kartlägga dominerande aktörer.
-- **Insikter**: Ger en överblick över globala trafikmönster, där länder som USA, Frankrike, Kina och Tyskland ofta toppar listan beroende på tid på dygnet.
+## ✈️ 2. Fysikalisk telemetrianalys (Mål 6, 7)
+- **Hastighet (`velocity`)**: Mäts i meter per sekund (m/s). Typisk marschfart för kommersiella jetplan ligger kring 200–250 m/s (~720–900 km/h).
+- **Höjd (`altitude`)**: Barometrisk höjd i meter. Kommersiell trafik opererar vanligen över 9 000–12 000 meter.
+- **Aggregering med groupby**:
+  ```python
+  vel_stats = valid_flights.groupby("country").agg(
+      flight_count=("icao24", "count"),
+      avg_velocity=("velocity", "mean"),
+      avg_altitude=("altitude", "mean"),
+      max_velocity=("velocity", "max")
+  )
+  ```
 
 ---
 
-## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 05)
-- **Fokus**: Aggregering av landfördelning och flygbolagstopplista.
-- **Git Commit**: `feat: analys av landfördelning och filtrering`
-- **Testmetod**: `live_api.show_country_stats()`
+## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 06)
+- **Fokus**: Gruppering och statistikberäkning för höjd och hastighet.
+- **Git Commit**: `feat: hastighets- och höjdsanalys`
+- **Testmetod**: `live_api.show_velocity_stats()`
 
 ---
 
@@ -28,10 +36,7 @@ from src.flight_logic import LiveFlightAPI
 
 live_api = LiveFlightAPI()
 live_api.fetch_live_flights(limit=200)
-
-top_countries = live_api.df["country"].value_counts().head(5)
-print("Topp 5 länder:")
-print(top_countries)
+live_api.show_velocity_stats()
 ```
 
 ---
