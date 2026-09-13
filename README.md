@@ -1,32 +1,29 @@
 # Flight Trend & Optimization Analyzer
-*Stage 06: Hastighets- och Höjdsanalys*
+*Stage 07: Explicit For-Loop Summering per Land*
 
 ---
 
 ## 📌 1. Projektöversikt
-I detta stadium fördjupar vi analysen till telemetriska fysikvärden: marschhastighet och flygnivåer (höjd). Detta ger en djupare förståelse för hur trafiken fördelar sig i höjdled och fart.
+Kursens mål 2 och 6 kräver förståelse för grundläggande styrsatser och loopar i Python. I Stage 07 kompletterar vi pandas vektoriserade operationer med explicita `for`-loopar för att skapa formaterade terminalrapporter.
 
 ---
 
-## ✈️ 2. Fysikalisk telemetrianalys (Mål 6, 7)
-- **Hastighet (`velocity`)**: Mäts i meter per sekund (m/s). Typisk marschfart för kommersiella jetplan ligger kring 200–250 m/s (~720–900 km/h).
-- **Höjd (`altitude`)**: Barometrisk höjd i meter. Kommersiell trafik opererar vanligen över 9 000–12 000 meter.
-- **Aggregering med groupby**:
+## 🔄 2. Programmeringsparadigm: Vektorisering vs Explicita Loopar (Mål 2)
+- **Varför både och?** Medan pandas är överlägset för snabb databehandling i minnet, ger explicita loopar full kontroll över detaljerad strängformatering, anpassade utskrifter och logik för varje enskild entitet.
+- **Implementation**:
   ```python
-  vel_stats = valid_flights.groupby("country").agg(
-      flight_count=("icao24", "count"),
-      avg_velocity=("velocity", "mean"),
-      avg_altitude=("altitude", "mean"),
-      max_velocity=("velocity", "max")
-  )
+  for country, count in country_counts.items():
+      subset = live_api.df[live_api.df["country"] == country]
+      avg_v = subset["velocity"].mean()
+      print(f"Land: {country} | Antal: {count} | Snittfart: {avg_v:.1f} m/s")
   ```
 
 ---
 
-## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 06)
-- **Fokus**: Gruppering och statistikberäkning för höjd och hastighet.
-- **Git Commit**: `feat: hastighets- och höjdsanalys`
-- **Testmetod**: `live_api.show_velocity_stats()`
+## 🛠️ 3. Pågående arbete (Aktuella uppgifter för Stage 07)
+- **Fokus**: Konstruktion av loop-baserad summeringsrapport för toppländer.
+- **Git Commit**: `feat: for-loop sammanfattning per land`
+- **Testmetod**: `live_api.show_for_loop_demo()`
 
 ---
 
@@ -35,8 +32,8 @@ I detta stadium fördjupar vi analysen till telemetriska fysikvärden: marschhas
 from src.flight_logic import LiveFlightAPI
 
 live_api = LiveFlightAPI()
-live_api.fetch_live_flights(limit=200)
-live_api.show_velocity_stats()
+live_api.fetch_live_flights(limit=150)
+live_api.show_for_loop_demo()
 ```
 
 ---
