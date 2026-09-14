@@ -125,10 +125,10 @@ class LiveFlightAPI(FlightDataAnalyzer):
             print(f"[ERROR] Kunde inte skriva till fil '{output_filepath}': {e}")
             return False
 
-    def show_data_transition(self) -> None:
-        """Stage 09 testmetod: Förberedelse och visualisering."""
+    def show_export_info(self) -> None:
+        """Stage 10 testmetod: CSV-export verifiering."""
         if self.df.empty:
             self.fetch_live_flights(limit=100)
-        print("[TEST] Stage 09: Visualization pipeline ready.")
-        print(f"  Data rader redo for Matplotlib: {len(self.df)}")
-        print(f"  Unika lander redo for stapeldiagram: {self.df['country'].nunique() if 'country' in self.df else 0}")
+        print("[TEST] Stage 10: Verifierar CSV export pipeline...")
+        success = self.export_cleaned_data("live_flights_data.csv")
+        print(f"[TEST RESULT] CSV Export: {'PASS' if success else 'FAIL'}")
