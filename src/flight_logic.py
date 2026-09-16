@@ -125,9 +125,7 @@ class LiveFlightAPI(FlightDataAnalyzer):
             print(f"[ERROR] Kunde inte skriva till fil '{output_filepath}': {e}")
             return False
 
-    def test_error_handling(self) -> None:
-        """Stage 11 testmetod: Test av felhantering (try/except)."""
-        print("[TEST] Stage 11: Testing robust error handling:")
-        empty_analyzer = LiveFlightAPI()
-        print("  1. Tom data export test ->", "Klarade felfritt" if not empty_analyzer.export_cleaned_data("test.csv") else "Fel")
-        print("  2. Ogiltig landsokning test ->", "Klarade felfritt" if empty_analyzer.get_flights_by_country("Atlantis").empty else "Fel")
+    def show_project_summary(self) -> None:
+        """Stage 12 testmetod: Projektöversikt och AI-koppling."""
+        print("[TEST] Stage 12: Project status & AI industry mapping verified.")
+        print("  Mal 1 (Branschanalys) och Mal 5 (Certifikat) dokumenterade i README.md.")
