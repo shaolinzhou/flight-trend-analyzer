@@ -125,10 +125,9 @@ class LiveFlightAPI(FlightDataAnalyzer):
             print(f"[ERROR] Kunde inte skriva till fil '{output_filepath}': {e}")
             return False
 
-    def show_export_info(self) -> None:
-        """Stage 10 testmetod: CSV-export verifiering."""
-        if self.df.empty:
-            self.fetch_live_flights(limit=100)
-        print("[TEST] Stage 10: Verifierar CSV export pipeline...")
-        success = self.export_cleaned_data("live_flights_data.csv")
-        print(f"[TEST RESULT] CSV Export: {'PASS' if success else 'FAIL'}")
+    def test_error_handling(self) -> None:
+        """Stage 11 testmetod: Test av felhantering (try/except)."""
+        print("[TEST] Stage 11: Testing robust error handling:")
+        empty_analyzer = LiveFlightAPI()
+        print("  1. Tom data export test ->", "Klarade felfritt" if not empty_analyzer.export_cleaned_data("test.csv") else "Fel")
+        print("  2. Ogiltig landsokning test ->", "Klarade felfritt" if empty_analyzer.get_flights_by_country("Atlantis").empty else "Fel")
