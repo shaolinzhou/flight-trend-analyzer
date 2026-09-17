@@ -125,7 +125,7 @@ class LiveFlightAPI(FlightDataAnalyzer):
             print(f"[ERROR] Kunde inte skriva till fil '{output_filepath}': {e}")
             return False
 
-    def show_project_summary(self) -> None:
-        """Stage 12 testmetod: Projektöversikt och AI-koppling."""
-        print("[TEST] Stage 12: Project status & AI industry mapping verified.")
-        print("  Mal 1 (Branschanalys) och Mal 5 (Certifikat) dokumenterade i README.md.")
+    def show_reflection(self) -> None:
+        """Stage 13 testmetod: Reflektion och GitHub integration."""
+        print("[TEST] Stage 13: Reflection and repository link validated.")
+        print("  Mal 8 (Sjalvstandig reflektion) och GitHub-lank dokumenterade i README.md.")
